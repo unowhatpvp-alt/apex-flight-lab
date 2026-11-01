@@ -20,6 +20,7 @@ class RoadBuilder {
     this.points = [];
     this.gaps = [];
     this.features = [];
+    this.laneShifts = [];
     this.x = 0;
     this.y = 5;
     this.angle = 0;
@@ -90,15 +91,23 @@ class RoadBuilder {
   }
 
   loop(radius = 29) {
-    this.features.push({ s: this.s, type: 'loop', label: '垂直回环' });
-    return this.turn(Math.PI * 2, radius);
+    const start = this.s;
+    this.turn(Math.PI * 2, radius);
+    this.features.push({ s: start, end: this.s, type: 'loop', label: '垂直回环' });
+    // A planar full loop necessarily crosses its own approach/exit. A modest
+    // helical lane change gives the two road decks real physical clearance.
+    this.laneShifts.push({ start, end: this.s, delta: Math.max(24, this.width + 8) });
+    return this;
   }
 
   ceiling(length = 100) {
-    this.features.push({ s: this.s, type: 'inverted', label: '倒挂路段' });
+    const start = this.s;
     this.turn(Math.PI, 28).line(length).turn(Math.PI, 20);
+    this.features.push({ s: start, end: this.s, type: 'inverted', label: '倒挂路段' });
+    this.laneShifts.push({ start, end: this.s, delta: Math.max(24, this.width + 8) });
     // The second half-loop exits 16 m above the approach road, so the
-    // returning bridge is genuinely separated from the lower level.
+    // returning bridge is genuinely separated from the lower level. Its lateral
+    // shift also clears the rising half-loop when it crosses that X position.
     return this;
   }
 
@@ -148,7 +157,44 @@ export function buildTrack(id = 'proving') {
   }
 
   const samples = road.points;
-  const length = road.s;
+  const planarDistances = samples.map(point => point.s);
+  let spatialLength = 0;
+  // Quintic easing has zero first and second derivatives at either seam. The
+  // full frame is right-handed: tangent × normal = side, initially +Z.
+  for (let i = 0; i < samples.length; i++) {
+    const point = samples[i];
+    let z = 0;
+    let dzds = 0;
+    for (const shift of road.laneShifts) {
+      const t = clamp((point.s - shift.start) / (shift.end - shift.start), 0, 1);
+      z += shift.delta * t ** 3 * (10 + t * (-15 + 6 * t));
+      dzds += shift.delta * 30 * t * t * (1 - t) ** 2 / (shift.end - shift.start);
+    }
+    point.p.z = z;
+    point.tangent.z = dzds;
+    point.tangent.normalize();
+    point.side.copy(point.tangent).cross(point.normal).normalize();
+    if (i > 0) spatialLength += point.p.distanceTo(samples[i - 1].p);
+    point.s = spatialLength;
+  }
+  const remapDistance = distance => {
+    let lo = 0;
+    let hi = planarDistances.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >>> 1;
+      if (planarDistances[mid] < distance) lo = mid + 1;
+      else hi = mid;
+    }
+    const index = clamp(lo - 1, 0, samples.length - 2);
+    const t = clamp((distance - planarDistances[index]) / Math.max(1e-8, planarDistances[index + 1] - planarDistances[index]), 0, 1);
+    return samples[index].s + (samples[index + 1].s - samples[index].s) * t;
+  };
+  for (const gap of road.gaps) { gap.start = remapDistance(gap.start); gap.end = remapDistance(gap.end); }
+  for (const feature of road.features) {
+    feature.s = remapDistance(feature.s);
+    if (Number.isFinite(feature.end)) feature.end = remapDistance(feature.end);
+  }
+  const length = spatialLength;
   const gaps = road.gaps;
   const isGap = s => gaps.some(gap => s > gap.start + 0.02 && s < gap.end - 0.02);
   for (const point of samples) point.gap = isGap(point.s);
@@ -160,13 +206,16 @@ export function buildTrack(id = 'proving') {
     const b = samples[index + 1];
     const t = clamp((s - a.s) / Math.max(1e-6, b.s - a.s), 0, 1);
     const tangent = a.tangent.clone().lerp(b.tangent, t).normalize();
-    return { p: a.p.clone().lerp(b.p, t), tangent, normal: new Vector3(-tangent.y, tangent.x, 0), side: SIDE.clone(), s, width: descriptor.width, gap: isGap(s), index };
+    const normal = a.normal.clone().lerp(b.normal, t);
+    normal.addScaledVector(tangent, -normal.dot(tangent)).normalize();
+    const side = new Vector3().crossVectors(tangent, normal).normalize();
+    return { p: a.p.clone().lerp(b.p, t), tangent, normal, side, s, width: descriptor.width, gap: isGap(s), index };
   }
 
-  function nearest(position, hintS) {
+  function findNearest(position, hintS, solidOnly = false) {
     // Restrict correspondence to the current route neighborhood: at a loop
-    // crossover or under a bridge, the physically nearest other lap is not
-    // necessarily the road the driver is following.
+    // bridge, the physically nearest other level is not necessarily the road
+    // the driver is following. Actual road intersections are separated in Z.
     const hinted = Number.isFinite(hintS);
     const minS = hinted ? Math.max(0, hintS - 85) : 0;
     const maxS = hinted ? Math.min(length, hintS + 95) : length;
@@ -180,20 +229,29 @@ export function buildTrack(id = 'proving') {
     for (let i = startIndex; i <= endIndex; i++) {
       const a = samples[i];
       const b = samples[i + 1];
+      if (solidOnly && (a.gap || b.gap || isGap((a.s + b.s) / 2))) continue;
       segment.subVectors(b.p, a.p);
       delta.subVectors(position, a.p);
       const t = clamp(delta.dot(segment) / Math.max(1e-8, segment.lengthSq()), 0, 1);
       point.copy(a.p).addScaledVector(segment, t);
       const s = a.s + (b.s - a.s) * t;
       const distanceSquared = point.distanceToSquared(position);
-      // Small tie-breaker keeps correspondence stable at exact crossovers.
+      // A small progress preference removes nearest-segment chatter.
       const cost = distanceSquared + (hinted ? Math.abs(s - hintS) * 0.002 : 0);
       if (cost < best) { best = cost; bestS = s; }
     }
+    if (!Number.isFinite(best)) return null;
     const frame = sample(bestS);
     delta.subVectors(position, frame.p);
-    return { ...frame, height: delta.dot(frame.normal), lateral: delta.dot(frame.side), distance: delta.length() };
+    const height = delta.dot(frame.normal);
+    const lateral = delta.dot(frame.side);
+    const along = delta.dot(frame.tangent);
+    const edgeDistance = descriptor.width / 2 - Math.abs(lateral);
+    return { ...frame, height, lateral, along, edgeDistance, distance: delta.length(), distanceToSurface: Math.hypot(height, Math.min(0, edgeDistance), along) };
   }
+
+  const nearest = (position, hintS) => findNearest(position, hintS, false);
+  const nearestSolid = (position, hintS) => findNearest(position, hintS, true);
 
   // Checkpoints always sit on solid road, never at the end of a gap.
   const checkpoints = [0.22, 0.48, 0.74].map(fraction => {
@@ -203,5 +261,5 @@ export function buildTrack(id = 'proving') {
     return s;
   });
 
-  return { ...descriptor, grav: descriptor.gravity, length, width: descriptor.width, samples, gaps, checkpoints, features: road.features, sample, nearest, start: sample(5), finish: sample(length - 8), up: UP.clone() };
+  return { ...descriptor, grav: descriptor.gravity, length, width: descriptor.width, samples, gaps, checkpoints, features: road.features, sample, nearest, nearestSolid, start: sample(5), finish: sample(length - 8), up: UP.clone() };
 }
