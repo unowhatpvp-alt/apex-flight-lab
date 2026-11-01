@@ -1,15 +1,74 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#111916"><meta name="description" content="APEX 飞车实验室：实时 3D 喷气、翻转、环形赛道与车辆损伤模拟。电脑与手机均可玩。"><title>APEX / 飞车实验室</title><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css?v=1.1.0"></head>
-<body><canvas id="scene" aria-label="3D 飞车赛道"></canvas><div class="vignette"></div>
-<header><a class="brand" href="#" aria-label="APEX 飞车实验室"><svg viewBox="0 0 32 32"><path d="M3 26 16 4l13 22H19l-3-6-3 6z" fill="currentColor"/></svg><b>APEX<span>FLIGHT LAB</span></b></a><div class="top-right"><span id="render-status"><i></i> REALTIME 3D</span><button id="sound" class="icon-button" aria-label="切换声音" title="切换声音">声音 关</button><button id="fullscreen" class="icon-button" aria-label="切换全屏" title="全屏">⛶</button></div></header>
-<main id="menu"><div class="hero"><div class="eyebrow"><span></span> EXPERIMENTAL DRIVING PROGRAM / 01</div><h1>地面，<br>只是起点<span>。</span></h1><p class="intro">踩下电门，挣脱重力。<br>在环形赛道与倒挂路段，找到你的飞行方式。</p><div class="vehicle-caption"><span class="line"></span><div><b>ROADSTER / R-01</b><small>四点喷气 · 主动吸附 · 实时损伤</small></div></div></div>
-<section class="mission-panel"><div class="section-top"><span>选择试验场</span><span class="micro">05 LOCATIONS</span></div><div id="tracks" class="track-list"></div><div class="mission-detail"><p id="track-description"></p><div><span><small>赛道长度</small><b id="track-length">—</b></span><span><small>本机最高分</small><b id="best-score">—</b></span><label><small>画质</small><select id="quality" aria-label="画质"><option value="auto">自动</option><option value="low">流畅</option><option value="medium">均衡</option><option value="high" selected>高画质</option><option value="ultra">极致 · 4K 阴影</option></select></label></div><small id="quality-note">精细材质 · 环境遮蔽 · 柔和光晕</small></div><button id="start" class="primary" disabled><span>准备试验场…</span><b>↗</b></button><div class="menu-controls"><span><kbd>W</kbd> 加速</span><span><kbd>A</kbd><kbd>D</kbd> 左右侧滚</span><span><kbd>空格</kbd> 喷气</span><button id="help">操作说明 ↗</button></div></section>
-<footer><span>独立特技模拟游戏 · 非特斯拉官方产品</span><span>WEBGL / GPU ACCELERATED</span></footer></main>
-<section id="hud" hidden><div class="hud-top"><div class="hud-course"><small>试验进行中</small><b id="course-name"></b><span id="mode-label">地面驾驶</span></div><div class="run-stats"><span><small>时间</small><b id="timer">00:00.0</b></span><span><small>得分</small><b id="score">00000</b></span></div><button id="pause" class="icon-button" aria-label="暂停">Ⅱ</button></div><div class="progress-track"><i id="progress"></i></div><div id="event" aria-live="polite"></div><div class="hud-bottom"><div class="speed-panel"><b id="speed">0</b><span>KM/H</span><small id="distance">000 / 000 M</small></div><div class="telemetry"><div><span>喷气储量</span><b id="fuel-value">100%</b></div><div class="meter"><i id="fuel"></i></div><div><span>车辆完整度</span><b id="health-value">100%</b></div><div class="meter health"><i id="health"></i></div><div class="assist-row"><button id="magnet" aria-pressed="true">吸附 开 <kbd>M</kbd></button><button id="camera">车后跟随 <kbd>C</kbd></button></div></div><canvas id="minimap" width="210" height="82" aria-label="赛道位置图"></canvas></div><div class="desktop-controls"><span><kbd>W</kbd> 加速 <kbd>S</kbd> 刹车</span><span><kbd>←</kbd><kbd>→</kbd> 转向</span><span><kbd>A</kbd><kbd>D</kbd> 左右侧滚</span><span><kbd>SPACE</kbd> 底部喷气</span><span><kbd>R</kbd> 重试</span></div>
-<div id="touch-controls"><div class="touch-group"><div><button data-control="left" aria-label="左转">‹</button><button data-control="right" aria-label="右转">›</button></div><div><button data-control="flipLeft" aria-label="左侧滚 A">↶<small>A 左滚</small></button><button data-control="flipRight" aria-label="右侧滚 D">↷<small>D 右滚</small></button></div></div><div class="touch-group pedals"><button data-control="brake" aria-label="刹车">刹车</button><button data-control="throttle" class="throttle" aria-label="加速">加速 ↑</button><button data-control="jet" class="jet" aria-label="底部喷气">喷气<small>HOLD TO FLY</small></button></div></div></section>
-<section id="pause-screen" role="dialog" aria-modal="true" aria-label="模拟暂停" class="overlay" hidden><div class="modal small-modal"><span class="eyebrow">SIMULATION PAUSED</span><h2>稍作停留。</h2><p>A/D 控制左右侧滚。落地前松开喷气并调平侧倾，使轮胎朝向赛道。</p><button id="resume" class="primary">继续驾驶 <b>→</b></button><button id="restart" class="secondary">重新挑战</button><button id="exit" class="text-button">返回试验场</button></div></section>
-<section id="results" role="dialog" aria-modal="true" aria-label="本局结果" class="overlay" hidden><div class="modal results-modal"><div class="result-heading"><div><span class="eyebrow">POST-RUN ANALYSIS</span><h2 id="result-title">试验完成。</h2><p id="result-reason"></p></div><div id="grade">A</div></div><div class="result-score"><small>本次综合得分</small><b id="final-score">0</b><span id="record-label"></span></div><div class="result-grid"><div><small>驾驶时间</small><b id="final-time"></b></div><div><small>空中侧滚</small><b id="final-flips"></b></div><div><small>滞空时间</small><b id="final-air"></b></div><div><small>最高速度</small><b id="final-speed"></b></div></div><div class="damage-title"><b>车辆损伤报告</b><span id="final-health"></span></div><div id="damage-report"></div><p class="result-note">得分来自行驶进度、滞空、翻转与落地表现；撞击会扣分。损伤为游戏模型。</p><div class="result-actions"><button id="retry" class="primary">再飞一把 <b>↗</b></button><button id="choose" class="secondary">更换赛道</button></div></div></section>
-<dialog id="help-dialog"><button class="close" aria-label="关闭说明">×</button><span class="eyebrow">PILOT BRIEFING</span><h2>你的第一次飞行。</h2><p><b>W / ↑</b> 加速，<b>S / ↓</b> 刹车；<b>← / →</b> 横向转向。</p><p><b>A / D</b> 在空中向左 / 向右侧滚（绕车身前后轴旋转）；按住<b>空格</b>，底部喷气沿车身朝上方向推动车辆，侧滚后喷气也会产生横向推力。前后俯仰由坡道接触、离地惯性和空气阻尼自动决定。</p><p><b>M</b> 开关吸附辅助，用于环形与倒挂路段。喷气会脱离赛道，落地后自动补充储量。</p><p><b>C</b> 切换视角，<b>R</b> 重新开始，<b>Esc / P</b> 暂停。手机使用屏幕按钮，支持同时按住加速、翻转和喷气；横屏视野更宽。</p><p>入门建议：先加速，短按喷气 0.5～1 秒，空中轻点 A/D 调平左右倾斜；不要一直喷到储量耗尽。</p><small>这是一款以飞行跑车为灵感的街机物理模拟，吸附、气体补给与损伤数值为游戏设计。</small><button class="primary close-help">明白，准备出发 →</button></dialog>
-<div id="error" hidden role="alert"></div><script type="module" src="main.js?v=1.1.0"></script></body></html>
-
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111916">
+  <meta name="description" content="APEX 飞车实验室：六种 3D 特技赛道、四款试验车、喷气侧滚与实时车辆损伤。电脑和手机均可驾驶。">
+  <title>APEX / 飞车实验室</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=1.2.0-release">
+</head>
+<body>
+<canvas id="scene" aria-label="3D 飞车赛道" data-i18n-aria="scene.label"></canvas>
+<div class="vignette"></div>
+<header>
+  <a class="brand" href="#" aria-label="APEX 飞车实验室" data-i18n-aria="brand.label"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 26 16 4l13 22H19l-3-6-3 6z" fill="currentColor"/></svg><b>APEX<span>FLIGHT LAB</span></b></a>
+  <div class="top-right">
+    <span id="render-status"><i></i> REALTIME 3D</span>
+    <button id="language" class="icon-button" aria-label="Switch to English" title="Switch to English">EN</button>
+    <button id="sound" class="icon-button" aria-label="切换声音" title="切换声音" data-i18n="sound.off" data-i18n-aria="sound.label" data-i18n-title="sound.label">声音 关</button>
+    <button id="fullscreen" class="icon-button" aria-label="切换全屏" title="全屏" data-i18n-aria="fullscreen.label" data-i18n-title="fullscreen.title">⛶</button>
+  </div>
+</header>
+<main id="menu">
+  <div class="hero">
+    <div class="eyebrow"><span></span><span data-i18n="eyebrow.program">驾驶试验计划 / 06</span></div>
+    <h1><span data-i18n="hero.first">地面，</span><br><span data-i18n="hero.second">只是起点</span><em data-i18n="hero.punctuation">。</em></h1>
+    <p class="intro" data-i18n="hero.intro">踩下电门，挣脱重力。在悬空跑道与倒挂路段，找到你的飞行方式。</p>
+    <div class="vehicle-caption"><span class="line"></span><div><b data-i18n="hero.vehicle">四款试验车 · 实时驾驶动态</b><small data-i18n="hero.features">底部喷气 · 主动吸附 · 实时损伤</small></div></div>
+  </div>
+  <section class="mission-panel">
+    <div class="section-top"><span data-i18n="tracks.title">选择试验场</span><span class="micro" data-i18n="tracks.count">06 个地点</span></div>
+    <div id="tracks" class="track-list"></div>
+    <div class="mission-detail">
+      <p id="track-description"></p>
+      <div class="track-stats"><span><small data-i18n="tracks.length">赛道长度</small><b id="track-length">—</b></span><span><small data-i18n="tracks.best">本机最高分</small><b id="best-score">—</b></span></div>
+    </div>
+    <div class="garage-settings">
+      <label class="vehicle-picker" for="vehicle"><span data-i18n="vehicle.label">试验车辆</span><select id="vehicle" aria-label="试验车辆" data-i18n-aria="vehicle.label"><option value="roadster" data-i18n="vehicle.roadster">R-01 · 飞行跑车</option><option value="coupe" data-i18n="vehicle.coupe">C-02 · 双门 GT</option><option value="rally" data-i18n="vehicle.rally">R-03 · 拉力赛车</option><option value="prototype" data-i18n="vehicle.prototype">P-04 · 原型赛车</option></select></label>
+      <small id="vehicle-note">—</small>
+      <div class="graphics-settings"><label for="quality"><span data-i18n="quality.label">画面质量</span><select id="quality" aria-label="画面质量" data-i18n-aria="quality.label"><option value="auto" data-i18n="quality.auto">自动</option><option value="low" data-i18n="quality.low">流畅</option><option value="medium" data-i18n="quality.medium">均衡</option><option value="high" selected data-i18n="quality.high">高画质</option><option value="ultra" data-i18n="quality.ultra">极致 · 4K 阴影</option></select></label><label class="blur-toggle" for="motion-blur" title="随车速增强，可随时关闭" data-i18n-title="motionBlur.note"><span data-i18n="motionBlur.label">运动模糊</span><input id="motion-blur" type="checkbox"><span class="switch" aria-hidden="true"></span></label></div>
+      <small id="quality-note" data-i18n="quality.note.high">精细材质 · 环境遮蔽 · 柔和光晕</small>
+    </div>
+    <div class="launch-section">
+      <button id="start" class="primary" disabled><span data-i18n="start.loading">准备试验场…</span><b aria-hidden="true">↗</b></button>
+      <div class="menu-controls"><span><kbd>A</kbd><kbd>D</kbd> <span data-i18n="controls.steer">转向</span></span><span><kbd>Q</kbd><kbd>E</kbd> <span data-i18n="controls.roll">侧滚</span></span><span><kbd data-i18n="controls.space">空格</kbd> <span data-i18n="touch.jet">喷气</span></span><button id="help" data-i18n="controls.help">操作说明 ↗</button></div>
+    </div>
+  </section>
+  <footer><span data-i18n="footer.independent">独立特技模拟游戏 · 非特斯拉官方产品</span><span data-i18n="footer.gpu">WEBGL / GPU 硬件加速</span></footer>
+</main>
+<section id="hud" hidden>
+  <div class="hud-top"><div class="hud-course"><small data-i18n="hud.running">车辆遥测 / 试验进行中</small><b id="course-name"></b><span id="mode-label">地面驾驶</span></div><div class="run-stats"><span><small data-i18n="hud.time">时间</small><b id="timer">00:00.0</b></span><span><small data-i18n="hud.score">得分</small><b id="score">00000</b></span></div><button id="pause" class="icon-button" aria-label="暂停" data-i18n-aria="hud.pause">Ⅱ</button></div>
+  <div class="progress-track"><i id="progress"></i></div>
+  <div id="platform-warning" role="status" aria-live="polite"></div>
+  <div id="event" aria-live="polite"></div>
+  <div class="hud-bottom">
+    <div class="speed-panel"><b id="speed">0</b><span>KM/H</span><div class="drive-line"><span data-i18n="gear.label">挡位</span><b id="gear">N</b><span data-i18n="grip.label">抓地力</span><b id="grip">—</b></div><small id="distance">000 / 000 M</small></div>
+    <div class="telemetry"><div><span data-i18n="hud.fuel">喷气储量</span><b id="fuel-value">100%</b></div><div class="meter"><i id="fuel"></i></div><div><span data-i18n="hud.integrity">车辆完整度</span><b id="health-value">100%</b></div><div class="meter health"><i id="health"></i></div><div class="assist-row"><button id="magnet" aria-pressed="true">吸附 开 <kbd>M</kbd></button><button id="camera">车后跟随 <kbd>C</kbd></button></div><button id="recover" class="recover-button"><span data-i18n="recover">返回赛道</span><kbd>T</kbd></button></div>
+    <canvas id="minimap" width="210" height="82" aria-label="赛道位置图" data-i18n-aria="hud.minimap"></canvas>
+  </div>
+  <div class="desktop-controls"><span><kbd>W</kbd> <span data-i18n="controls.accelerate">加速</span> <kbd>S</kbd> <span data-i18n="controls.brake">刹车</span></span><span><kbd>A</kbd><kbd>D</kbd> <span data-i18n="controls.steer">转向</span> <small data-i18n="controls.arrows">或方向键</small></span><span><kbd>Q</kbd><kbd>E</kbd> <span data-i18n="controls.roll">侧滚</span></span><span><kbd>SPACE</kbd> <span data-i18n="controls.jet">底部喷气</span></span><span><kbd>R</kbd> <span data-i18n="controls.retry">重试</span></span></div>
+  <div id="touch-controls">
+    <div class="touch-group"><div><button data-control="left" aria-label="左转 A" data-i18n-aria="touch.left">‹<small>A</small></button><button data-control="right" aria-label="右转 D" data-i18n-aria="touch.right">›<small>D</small></button></div><div><button data-control="flipLeft" aria-label="左侧滚 Q" data-i18n-aria="touch.rollLeft">↶<small data-i18n="touch.rollLeft.short">Q 左滚</small></button><button data-control="flipRight" aria-label="右侧滚 E" data-i18n-aria="touch.rollRight">↷<small data-i18n="touch.rollRight.short">E 右滚</small></button></div></div>
+    <div class="touch-group pedals"><button data-control="brake" aria-label="刹车" data-i18n="controls.brake" data-i18n-aria="controls.brake">刹车</button><button data-control="throttle" class="throttle" aria-label="加速" data-i18n="touch.throttle" data-i18n-aria="controls.accelerate">加速 ↑</button><button data-control="jet" class="jet" aria-label="底部喷气" data-i18n-aria="controls.jet"><span data-i18n="touch.jet">喷气</span><small data-i18n="touch.hold">按住起飞</small></button></div>
+  </div>
+</section>
+<section id="pause-screen" role="dialog" aria-modal="true" aria-label="模拟暂停" data-i18n-aria="pause.label" class="overlay" hidden><div class="modal small-modal"><span class="eyebrow" data-i18n="pause.eyebrow">模拟已暂停</span><h2 data-i18n="pause.title">稍作停留。</h2><p data-i18n="pause.tip">A / D 转向，Q / E 左右侧滚。落地前松开喷气并调平侧倾，使轮胎朝向赛道。</p><label class="pause-blur-row blur-toggle"><span data-i18n="motionBlur.label">运动模糊</span><input id="pause-blur" type="checkbox" aria-label="运动模糊" data-i18n-aria="motionBlur.label"><i class="switch" aria-hidden="true"></i></label><button id="resume" class="primary"><span data-i18n="pause.resume">继续驾驶</span><b aria-hidden="true">→</b></button><button id="restart" class="secondary" data-i18n="pause.restart">重新挑战</button><button id="exit" class="text-button" data-i18n="pause.exit">返回试验场</button></div></section>
+<section id="results" role="dialog" aria-modal="true" aria-label="本局结果" data-i18n-aria="result.label" class="overlay" hidden><div class="modal results-modal"><div class="result-heading"><div><span class="eyebrow" data-i18n="result.eyebrow">驾驶分析报告</span><h2 id="result-title">试验完成。</h2><p id="result-reason"></p></div><div id="grade">A</div></div><div class="result-score"><small data-i18n="result.score">本次综合得分</small><b id="final-score">0</b><span id="record-label"></span></div><div class="result-grid"><div><small data-i18n="result.time">驾驶时间</small><b id="final-time"></b></div><div><small data-i18n="result.flips">空中侧滚</small><b id="final-flips"></b></div><div><small data-i18n="result.airtime">滞空时间</small><b id="final-air"></b></div><div><small data-i18n="result.speed">最高速度</small><b id="final-speed"></b></div></div><div class="damage-title"><b data-i18n="result.damageTitle">车辆损伤报告</b><span id="final-health"></span></div><div id="damage-report"></div><p class="result-note" data-i18n="result.note">行驶进度、滞空、侧滚和落地表现带来分数；碰撞会扣分。车辆损伤采用游戏模型。</p><div class="result-actions"><button id="retry" class="primary"><span data-i18n="result.retry">再飞一把</span><b aria-hidden="true">↗</b></button><button id="choose" class="secondary" data-i18n="result.choose">更换赛道</button></div></div></section>
+<dialog id="help-dialog"><button class="close" aria-label="关闭操作说明" data-i18n-aria="help.close">×</button><span class="eyebrow" data-i18n="help.eyebrow">驾驶员简报</span><h2 data-i18n="help.title">你的第一次飞行。</h2><p data-i18n="help.drive">W / ↑ 加速，S / ↓ 刹车。A / D 或 ← / → 转向。</p><p data-i18n="help.roll">Q / E 在空中向左 / 向右侧滚。按住空格，底部喷气沿车身朝上方向推动车辆；侧滚后喷气也会产生横向推力。坡道接触、离地惯性和空气阻尼决定前后俯仰。</p><p data-i18n="help.magnet">M 开关吸附辅助，可用于环形与倒挂路段。喷气会让车辆脱离赛道，落地后自动补充储量。</p><p class="help-platform" data-i18n="help.platform">悬空发布场：橙色平台接近后开始倒计时，随后消失。留意倒计时，提前喷气，跨过断口。</p><p data-i18n="help.explore">驶出赛道后可以自由探索；只有实际穿过终点门才会结算。错过终点可继续驾驶，按 T 或点“返回赛道”重新进入赛道。没有自动限时。</p><p data-i18n="help.other">C 切换视角，R 重新开始，Esc / P 暂停。手机按钮支持同时按住加速、侧滚和喷气；横屏视野更宽。</p><p data-i18n="help.tip">先加速，短按喷气 0.5～1 秒，空中轻点 Q / E 调平侧倾。着陆前让四轮对准路面。</p><small data-i18n="help.disclaimer">这是以飞行跑车为灵感的街机物理模拟。吸附、气体补给与损伤数值为游戏设计。</small><button class="primary close-help" data-i18n="help.done">明白，准备出发 →</button></dialog>
+<div id="error" hidden role="alert"></div>
+<script type="module" src="main.js?v=1.2.0-release"></script>
+</body>
+</html>
 

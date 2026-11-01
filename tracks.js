@@ -1,6 +1,7 @@
 import { Vector3 } from './vendor/three.module.js';
 
 export const TRACKS = [
+  { id: 'reveal', name: '悬空发布场', subtitle: 'THE REVEAL', difficulty: '新地图', color: '#8ce8ff', description: '悬空断续跑道，橙色平台接近后倒计时消失。用喷气跨越断口并平稳着陆。', goalTime: 42, environment: 'stage', width: 21, gravity: 9.81, groundY: 0, openEdges: true },
   { id: 'proving', name: '赤砂试验场', subtitle: 'DESERT PROVING GROUND', difficulty: '入门', color: '#ffb15b', description: '宽阔直道、起伏路面和一道小飞跃。先练习喷气与平稳着陆。', goalTime: 34, environment: 'desert', width: 18, gravity: 9.81 },
   { id: 'loop', name: '天际回环', subtitle: 'SKYLINE LOOP', difficulty: '进阶', color: '#57dbff', description: '穿越完整的垂直回环，再跳过断桥。保持速度，或开启吸附辅助。', goalTime: 39, environment: 'dusk', width: 15, gravity: 9.81 },
   { id: 'inverted', name: '逆重力走廊', subtitle: 'INVERTED HIGHWAY', difficulty: '挑战', color: '#bd9cff', description: '沿桥底倒挂行驶，再穿过高架波浪。吸附开启时可稳定通过天花板。', goalTime: 44, environment: 'industrial', width: 16, gravity: 9.81 },
@@ -135,10 +136,24 @@ function lowerBound(samples, value) {
   return lo;
 }
 
-export function buildTrack(id = 'proving') {
+export function buildTrack(id = 'reveal') {
   const descriptor = TRACKS.find(track => track.id === id) || TRACKS[0];
   const road = new RoadBuilder(descriptor.width);
+  const vanishZones = [];
   switch (descriptor.id) {
+    case 'reveal': {
+      road.line(115).jump(22, .25, 28).line(75);
+      let start = road.s;
+      road.line(22);
+      vanishZones.push({ id: 'A', start, end: road.s, triggerS: start - 25, delay: 1.2 });
+      road.line(70).hill(60, 5).jump(26, .28, 28).line(75);
+      start = road.s;
+      road.line(24);
+      vanishZones.push({ id: 'B', start, end: road.s, triggerS: start - 25, delay: 1.2 });
+      road.line(75).hill(55, 3).line(90);
+      for (const point of road.points) point.p.y += 37;
+      break;
+    }
     case 'proving':
       road.line(110).hill(100, 7).line(65).jump(24, 0.30).line(75).hill(75, 5).line(135);
       break;
@@ -190,6 +205,7 @@ export function buildTrack(id = 'proving') {
     return samples[index].s + (samples[index + 1].s - samples[index].s) * t;
   };
   for (const gap of road.gaps) { gap.start = remapDistance(gap.start); gap.end = remapDistance(gap.end); }
+  for (const zone of vanishZones) { zone.start = remapDistance(zone.start); zone.end = remapDistance(zone.end); zone.triggerS = remapDistance(zone.triggerS); }
   for (const feature of road.features) {
     feature.s = remapDistance(feature.s);
     if (Number.isFinite(feature.end)) feature.end = remapDistance(feature.end);
@@ -261,5 +277,5 @@ export function buildTrack(id = 'proving') {
     return s;
   });
 
-  return { ...descriptor, grav: descriptor.gravity, length, width: descriptor.width, samples, gaps, checkpoints, features: road.features, sample, nearest, nearestSolid, start: sample(5), finish: sample(length - 8), up: UP.clone() };
+  return { ...descriptor, grav: descriptor.gravity, length, width: descriptor.width, samples, gaps, vanishZones, checkpoints, features: road.features, sample, nearest, nearestSolid, start: sample(5), finish: sample(length - 8), up: UP.clone() };
 }

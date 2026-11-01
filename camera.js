@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 
 // The chase frame follows the car's longitudinal direction, but not its barrel
-// roll: A/D remain readable against the road, while loops rotate the frame.
+// roll: Q/E remain readable against the road, while loops rotate the frame.
 export class ChaseCamera {
   constructor(camera) {
     this.camera = camera;
@@ -32,7 +32,8 @@ export class ChaseCamera {
     this.forward.set(1,0,0).applyQuaternion(this.rotation);
     this.up.set(0,1,0).applyQuaternion(this.rotation);
     const speed=Math.min(state.speed,75);
-    const distance=mode===1?17+speed*.035:mode===2?5.6:10+speed*.025;
+    const portrait=this.camera.aspect<.75;
+    const distance=(mode===1?17+speed*.035:mode===2?5.6:10+speed*.025)*(portrait?1.38:1);
     const height=mode===1?5.7:mode===2?1.8:3.4;
     this.anchor.copy(state.pos).addScaledVector(this.up,.6);
     this.desired.copy(state.pos).addScaledVector(this.forward,-distance).addScaledVector(this.up,height);
@@ -50,7 +51,8 @@ export class ChaseCamera {
         if(hit&&hit.distance<len+.4)this.camera.position.copy(this.anchor).addScaledVector(this.side,Math.max(.35,hit.distance-.5));
       }
     }
-    this.camera.fov=mode===2?66:THREE.MathUtils.clamp(55+speed*.11,55,64);
+    if(track.terrainHeightAt){const floor=track.terrainHeightAt(this.camera.position.x,this.camera.position.z);if(Number.isFinite(floor))this.camera.position.y=Math.max(this.camera.position.y,floor+.8);}
+    this.camera.fov=(mode===2?66:THREE.MathUtils.clamp(55+speed*.11,55,64))+(portrait?5:0);
     this.camera.lookAt(this.look);this.camera.updateProjectionMatrix();
   }
 }

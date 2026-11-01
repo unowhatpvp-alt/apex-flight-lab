@@ -10,3 +10,197 @@
 @media(max-height:550px) and (max-width:700px) and (orientation:landscape){.hud-bottom{left:160px;right:160px;gap:12px}.speed-panel>b{font-size:34px}.speed-panel>span{display:none}.telemetry{width:125px;min-width:125px}.assist-row button{font-size:8px}}
 @media(pointer:coarse){header{padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}#touch-controls{left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right))}}
 
+
+/* v1.2 · compact garage, bilingual UI and driving telemetry */
+#menu{padding-top:102px;padding-bottom:56px;overflow:auto;overscroll-behavior:contain}
+.hero{max-width:calc(100% - 460px);padding-top:4vh}
+.hero h1{font-size:clamp(43px,5.4vw,82px)}
+h1 span{color:inherit}h1 em{font-style:normal;color:var(--acid)}
+.hero .intro{max-width:370px}
+.eyebrow>span[data-i18n]{display:inline;width:auto;height:auto;background:none;border-radius:0;margin:0}
+html[lang="en"] .hero h1{font-size:clamp(40px,4.7vw,72px);line-height:1.12;letter-spacing:-2.8px}
+.mission-panel{width:420px;padding:21px;max-height:calc(100dvh - 132px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#72856a55 transparent}
+.section-top{margin-bottom:13px;font-weight:600}
+.track-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.track-card{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:7px;row-gap:4px;padding:10px 9px;min-height:58px;position:relative;align-content:center;align-items:center;min-width:0}
+.track-card .track-no{grid-column:1;grid-row:1/3;align-self:start;padding-top:2px}
+.track-card svg{display:none}
+.track-card>span:not(.track-no):not(.difficulty){grid-column:2;min-width:0}
+.track-card b{display:block;font-size:11px;line-height:1.3;overflow-wrap:anywhere}
+.track-card small{display:none}
+.track-card .difficulty{grid-column:2;display:block;margin:0;font-size:8px;letter-spacing:.7px}
+.track-card.selected{background:linear-gradient(100deg,#d1f8911c,#d1f89107);box-shadow:inset 2px 0 var(--acid)}
+.mission-detail p{min-height:35px;font-size:10px;line-height:1.65;margin:12px 0 10px}
+.mission-detail>.track-stats{justify-content:flex-start;gap:35px;margin:9px 0 12px}
+.mission-detail small{font-size:9px;margin-bottom:4px}
+.garage-settings{border-top:1px solid var(--line);padding-top:12px;margin-bottom:15px}
+.vehicle-picker,.graphics-settings>label{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:10px}
+.garage-settings select{min-height:32px;background:#07140f66;border:1px solid #ffffff20;border-radius:4px;padding:5px 8px;font-size:10px;min-width:0;max-width:185px;cursor:pointer}
+.garage-settings option{background:#18251c}
+.vehicle-picker select{flex:1;max-width:245px}
+#vehicle-note,#quality-note{display:block;color:var(--muted);font-size:8px;line-height:1.5;margin:7px 0 0;min-height:12px}
+.graphics-settings{display:grid;grid-template-columns:1fr auto;align-items:center;gap:16px;margin-top:10px}
+.graphics-settings select{max-width:130px}
+.blur-toggle{position:relative;cursor:pointer;gap:8px!important}
+.blur-toggle input{position:absolute;right:0;opacity:0;width:31px;height:28px;margin:0;cursor:pointer}
+.switch{display:block;position:relative;width:30px;height:17px;background:#ffffff1c;border:1px solid #ffffff20;border-radius:20px;pointer-events:none;transition:background .2s}
+.switch::after{content:"";position:absolute;left:2px;top:2px;width:11px;height:11px;border-radius:50%;background:#b7c4b4;transition:transform .2s,background .2s}
+.blur-toggle input:checked+.switch{background:#d1f89166;border-color:#d1f89199}
+.blur-toggle input:checked+.switch::after{transform:translateX(13px);background:var(--acid)}
+.blur-toggle input:focus-visible+.switch{outline:2px solid var(--acid);outline-offset:4px}
+.launch-section{position:sticky;bottom:-21px;margin-bottom:-4px;padding-bottom:4px;background:#14211c;box-shadow:0 -6px 14px #14211c}
+.menu-controls{gap:8px;font-size:8px;margin-top:11px;line-height:1.7}
+.menu-controls>span{white-space:nowrap}
+.menu-controls kbd{font-size:8px;padding:1px 3px}
+.menu-controls button{font-size:9px;white-space:nowrap}
+#language{min-width:39px;font-size:11px;font-weight:600;letter-spacing:.4px}
+.drive-line{grid-column:1/3;display:flex;align-items:center;gap:9px;margin-top:12px;font-size:8px;color:var(--muted);letter-spacing:1.2px}
+.drive-line b{font-size:12px;font-weight:600;letter-spacing:0;color:#edf4e7;font-variant-numeric:tabular-nums}
+#gear{min-width:25px;height:24px;display:grid;place-items:center;border:1px solid #d1f89155;border-radius:4px;color:var(--acid);margin-right:8px}
+.speed-panel>small{margin-top:9px}
+.recover-button{display:block;width:100%;margin-top:10px;padding:6px 8px;border:1px solid #ffffff24;border-radius:4px;background:#1120199c;font-size:9px;color:#d7e2d3;line-height:1.5}
+.recover-button kbd{font-size:8px;margin-left:5px}
+#platform-warning{position:absolute;top:212px;left:50%;transform:translateX(-50%);max-width:calc(100% - 40px);padding:9px 15px;border:1px solid #f9b15b77;border-radius:5px;background:#392717dc;color:#ffca87;font-size:12px;letter-spacing:.3px;text-align:center;line-height:1.45;box-shadow:0 6px 24px #0003}
+#platform-warning:empty{display:none}
+#event{top:33%;max-width:calc(100% - 35px);text-align:center;white-space:normal;line-height:1.5}
+.desktop-controls{gap:17px;font-size:9px;align-items:center}
+.desktop-controls small{font-size:8px;color:#82977e;margin-left:3px}
+.help-platform{padding:11px 13px;border-left:2px solid #e3a35e;background:#f9b15b09;color:#ddc8ab}
+html[lang="en"] .hud-course small{letter-spacing:1.5px;font-size:8px}
+html[lang="en"] .damage-row{grid-template-columns:76px 1fr 78px;gap:12px}
+html[lang="en"] .result-heading h2{font-size:27px}
+html[lang="en"] .assist-row button{font-size:8px}
+@media(min-width:1025px) and (max-height:760px){
+ #menu{padding-top:88px;padding-bottom:39px}.hero{padding-top:2vh}.mission-panel{max-height:calc(100dvh - 108px);padding:16px;width:400px}.track-card{padding:8px 8px;min-height:51px}.mission-detail p{margin:9px 0;min-height:0}.garage-settings{padding-top:9px;margin-bottom:11px}.graphics-settings{margin-top:7px}.launch-section{bottom:-16px}.vehicle-caption{margin-top:35px}footer{bottom:17px}
+}
+@media(max-width:1024px),(pointer:coarse){
+ #menu{padding:86px 20px 30px}.hero{max-width:none}.hero h1{font-size:45px}.mission-panel{width:100%;max-width:490px;max-height:none;overflow:visible;margin:24px auto 0;padding:18px}.hero .intro{font-size:11px;max-width:340px}.vehicle-caption{margin-top:22px}.launch-section{position:static;margin:0;padding:0;background:none;box-shadow:none}.track-card{min-height:57px;padding:9px}.track-card b{font-size:11px}.track-card .difficulty{font-size:8px}.mission-detail p{font-size:10px;min-height:0}.mission-detail>.track-stats{gap:38px;margin:10px 0 12px}.garage-settings{margin-bottom:13px}.graphics-settings{gap:13px}.garage-settings select{font-size:10px;min-height:34px}.menu-controls{margin-top:10px}.drive-line{font-size:7px;gap:6px;letter-spacing:.6px;margin-top:8px}.drive-line b{font-size:10px}#gear{height:21px;min-width:22px;margin-right:3px}#platform-warning{top:177px;font-size:11px;padding:7px 11px}.hud-bottom{bottom:192px;align-items:end}.recover-button{margin-top:7px;padding:5px;font-size:8px}.recover-button kbd{display:none}.touch-group>div:first-child button{font-size:25px;gap:0}.touch-group>div:first-child small{font-size:7px;line-height:1}.pedals .throttle{font-size:10px}html[lang="en"] .hero h1{font-size:43px;letter-spacing:-2px}html[lang="en"] .hud-course small{font-size:7px;letter-spacing:.8px}html[lang="en"] .hud-course b{max-width:170px;font-size:12px}html[lang="en"] .run-stats{gap:13px}
+}
+@media(max-width:600px) and (orientation:portrait){
+ header{padding:17px 17px}.brand{gap:7px}.brand b{font-size:18px}.brand svg{width:26px;height:29px}.top-right{gap:5px}.icon-button{padding:8px 9px;font-size:10px}#language{min-width:33px;font-size:10px}#fullscreen{padding:2px 8px;font-size:22px}#menu{padding:79px 16px 26px}.hero .eyebrow{font-size:7px;letter-spacing:1.2px}.hero h1{font-size:33px;letter-spacing:-1.8px;margin:13px 0 0;line-height:1.17}.hero h1 br{display:none}.hero .intro,.hero .vehicle-caption{display:none}.mission-panel{margin-top:18px;padding:15px}.section-top{font-size:12px;margin-bottom:11px}.micro{font-size:8px}.track-list{gap:5px}.track-card{padding:8px;min-height:55px;column-gap:5px;grid-template-columns:14px minmax(0,1fr)}.track-card b{font-size:10px}.track-card .difficulty{font-size:7px}.track-card .track-no{font-size:8px}.mission-detail p{font-size:9px;line-height:1.7;margin:10px 0 8px}.mission-detail>.track-stats{margin:8px 0 10px}.garage-settings{padding-top:10px;margin-bottom:12px}.vehicle-picker,.graphics-settings>label{font-size:9px;gap:10px}.vehicle-picker select{max-width:205px}.graphics-settings{gap:10px;margin-top:8px}.graphics-settings select{max-width:110px;font-size:9px}.blur-toggle{gap:6px!important}#vehicle-note,#quality-note{font-size:7px;margin-top:5px}.primary{padding:13px 14px;font-size:13px}.menu-controls{gap:6px;font-size:7px}.menu-controls button{font-size:8px}footer{font-size:7px;line-height:1.5;margin-top:18px}.hud-top{left:16px;right:16px;gap:10px}.run-stats{gap:14px}.run-stats b{font-size:17px}.hud-course small{font-size:7px;letter-spacing:1.2px}.hud-course b{font-size:13px}.hud-bottom{left:16px;right:16px;gap:13px}.telemetry{width:159px;flex-shrink:0}.speed-panel>b{font-size:48px}.speed-panel>span{font-size:7px;align-self:end}.assist-row{gap:6px!important}.assist-row button{font-size:8px}.assist-row kbd{display:none}.drive-line{gap:5px}.drive-line>span{font-size:6px}.speed-panel>small{font-size:7px}html[lang="en"] .hero h1{font-size:29px;letter-spacing:-1.4px}html[lang="en"] .hero h1 br{display:block}html[lang="en"] .mission-panel{margin-top:15px}html[lang="en"] .track-card b{font-size:9px}html[lang="en"] .track-card .difficulty{letter-spacing:.4px;font-size:6px}html[lang="en"] .menu-controls{gap:5px}html[lang="en"] .hud-course b{max-width:130px;font-size:11px}html[lang="en"] .hud-course small{font-size:6px}html[lang="en"] .assist-row button{font-size:7px}.result-heading h2{font-size:25px}html[lang="en"] .result-heading h2{font-size:23px}.damage-row{gap:10px}
+}
+@media(max-height:550px) and (orientation:landscape){
+ #menu{display:flex;padding:64px 20px 24px;align-items:flex-start;overflow:auto;gap:30px}.hero{max-width:calc(100% - 355px);padding-top:12px}.hero h1,html[lang="en"] .hero h1{font-size:34px;line-height:1.13;margin:15px 0;letter-spacing:-1.5px}.hero .intro{font-size:9px;max-width:260px}.vehicle-caption{margin-top:25px}.vehicle-caption small{font-size:8px}.mission-panel{width:330px;max-width:330px;max-height:none;margin:0;padding:13px;overflow:visible}.track-card{min-height:46px;padding:6px;grid-template-columns:12px minmax(0,1fr)}.track-card b{font-size:9px}.track-card .difficulty{font-size:6px}.track-card .track-no{font-size:8px}.section-top{margin-bottom:8px}.mission-detail p{font-size:8px;line-height:1.5;margin:8px 0}.mission-detail>.track-stats{margin:7px 0 9px}.garage-settings{padding-top:8px;margin-bottom:10px}.garage-settings select{min-height:29px;font-size:9px}.vehicle-picker,.graphics-settings>label{font-size:8px}.graphics-settings{margin-top:6px;gap:10px}.graphics-settings select{max-width:100px}.launch-section{position:static;background:none;box-shadow:none;padding:0}.menu-controls{font-size:7px;gap:5px}.menu-controls button{font-size:8px}.hud-bottom{left:165px;right:165px;bottom:19px;gap:16px}.speed-panel>b{font-size:43px}.speed-panel>span{font-size:7px}.drive-line{gap:5px;font-size:6px;margin-top:5px}.drive-line b{font-size:9px}#gear{height:17px;min-width:18px;margin-right:0}.telemetry{width:160px;flex-shrink:0}.telemetry>div:not(.meter){font-size:8px}.assist-row button{font-size:7px}.recover-button{font-size:7px;margin-top:5px;padding:3px}.recover-button kbd{display:none}#platform-warning{top:119px;font-size:10px;padding:5px 9px}#event{top:43%;font-size:14px}.hud-course small{display:none}.desktop-controls{display:none}footer{display:none}html[lang="en"] .hero h1{font-size:31px}html[lang="en"] .track-card b{font-size:8px}html[lang="en"] .track-card .difficulty{font-size:6px}
+}
+@media(max-height:550px) and (max-width:700px) and (orientation:landscape){
+ #menu{gap:18px}.hero{max-width:calc(100% - 318px)}.mission-panel{width:300px;max-width:300px}.hero h1,html[lang="en"] .hero h1{font-size:28px}.vehicle-caption{display:none}.hud-bottom{left:150px;right:150px;gap:8px}.telemetry{width:125px;min-width:125px}.speed-panel>b{font-size:31px}.speed-panel>span{display:none}.drive-line>span{display:none}.drive-line{gap:6px}html[lang="en"] .assist-row button{font-size:6px}#event{font-size:11px}.recover-button{padding:2px}
+}
+@media(prefers-reduced-motion:reduce){.track-card,.primary,.switch,.switch::after{transition:none}}
+
+/* Touch ergonomics: game gestures never select labels or trigger double-tap
+   zoom; menus and modal sheets retain ordinary vertical scrolling. */
+html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body,button,a,label,canvas,#menu,#hud,.overlay,dialog{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body{touch-action:manipulation}
+button,a{touch-action:manipulation}
+#scene,#hud,#touch-controls,#touch-controls button{touch-action:none}
+#menu,.mission-panel,.modal,dialog{touch-action:pan-y pinch-zoom;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+select,option{-webkit-user-select:auto;user-select:auto;touch-action:manipulation}
+#error{-webkit-user-select:text;user-select:text;touch-action:pan-y}
+.blur-toggle{min-height:44px}
+.blur-toggle input{width:100%;height:44px;top:0}
+.track-card,.primary,.secondary,.text-button,.menu-controls button{min-height:44px}
+.menu-controls button{padding:8px 4px}
+dialog{overflow-y:auto}
+.result-actions>button{min-width:0;overflow-wrap:anywhere}
+
+@media(max-width:1024px),(pointer:coarse){
+ header{padding-top:max(12px,env(safe-area-inset-top));padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+ .icon-button,#language,#fullscreen,.close{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+ .icon-button{padding:8px 10px}#language{font-size:11px}
+ #menu{padding-top:calc(84px + env(safe-area-inset-top));padding-bottom:calc(28px + env(safe-area-inset-bottom));scroll-padding-top:12px;scroll-padding-bottom:24px}
+ .mission-panel{min-width:0;overflow-wrap:anywhere}
+ .garage-settings select{min-height:44px;font-size:16px;padding:6px 8px}
+ .graphics-settings{grid-template-columns:minmax(0,1fr) auto;gap:10px}
+ .graphics-settings>label:first-child{min-width:0;gap:8px}
+ .graphics-settings select{width:112px;max-width:100%;flex-shrink:1}
+ .vehicle-picker select{max-width:240px}
+ .vehicle-picker,.graphics-settings>label{font-size:10px}
+ #vehicle-note,#quality-note{font-size:9px;line-height:1.5}
+ .menu-controls{font-size:8px;gap:7px}
+ .menu-controls button{font-size:10px;min-width:70px}
+ .hud-top{top:calc(73px + env(safe-area-inset-top))}
+ .progress-track{top:calc(150px + env(safe-area-inset-top))}
+ #platform-warning{top:calc(165px + env(safe-area-inset-top));text-align:center;line-height:1.4}
+ .hud-bottom{bottom:calc(170px + env(safe-area-inset-bottom))}
+ .assist-row button,.recover-button{min-height:44px;min-width:44px;padding:7px 6px;line-height:1.25}
+ .assist-row button{flex:1;border:1px solid #ffffff1c;border-radius:5px;background:#112019a6}
+ .recover-button{font-size:10px;margin-top:5px}
+ .touch-group button{min-width:52px;min-height:52px}
+ .touch-group button small{font-size:9px}
+ .pedals button{min-width:0;font-size:12px}
+ .pedals .throttle{font-size:11px}
+ .pedals .jet{min-height:58px}
+ .modal{padding:22px;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+ .overlay{padding:calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom))}
+ #event{max-width:calc(100% - 36px);white-space:normal;text-align:center;font-size:15px;line-height:1.45}
+}
+
+@media(max-width:600px) and (orientation:portrait){
+ .top-right{gap:4px}.brand{gap:6px}.brand b{font-size:17px;letter-spacing:3px}.brand b span{letter-spacing:3px}.brand svg{width:25px}
+ #menu{padding-left:16px;padding-right:16px}
+ .hero h1{font-size:31px}html[lang="en"] .hero h1{font-size:28px}
+ .mission-panel{padding:15px;margin-top:16px}
+ .track-card{min-height:57px;padding:9px 8px}
+ .track-card b,html[lang="en"] .track-card b{font-size:11px}
+ .track-card .difficulty,html[lang="en"] .track-card .difficulty{font-size:8px;letter-spacing:.2px}
+ .mission-detail p{font-size:11px;line-height:1.55}
+ .garage-settings{margin-bottom:14px}
+ .vehicle-picker select{max-width:225px}
+ .graphics-settings select{width:106px}
+ .blur-toggle{gap:6px!important;font-size:9px!important}
+ .hud-top{left:14px;right:14px;gap:8px}.hud-course{min-width:0;flex:1}
+ .hud-course b,html[lang="en"] .hud-course b{font-size:11px;max-width:125px;overflow-wrap:anywhere}
+ .hud-course>span{font-size:9px;line-height:1.3}.run-stats{flex-shrink:0;gap:12px}
+ .run-stats b{font-size:16px}.run-stats small{font-size:9px}
+ .hud-bottom{left:14px;right:14px;gap:10px}.telemetry{width:166px}
+ .speed-panel>b{font-size:46px}.speed-panel>small{font-size:7px;overflow-wrap:anywhere}
+ .assist-row button,html[lang="en"] .assist-row button{font-size:9px}
+ .drive-line{flex-wrap:wrap;max-width:150px;row-gap:3px}
+ .touch-group>div{gap:7px}.touch-group button{width:56px;height:55px}
+ .pedals{grid-template-columns:54px 70px;gap:8px}
+ #touch-controls{gap:10px}
+ .result-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+ .result-grid b{font-size:15px}.result-grid small{font-size:10px}
+ .result-heading h2,html[lang="en"] .result-heading h2{font-size:23px}
+ #grade{font-size:58px}.damage-row{grid-template-columns:70px minmax(0,1fr) 75px;gap:8px}
+}
+
+@media(max-height:550px) and (orientation:landscape){
+ header{padding-top:max(7px,env(safe-area-inset-top))!important;padding-bottom:5px!important}
+ #menu{padding-top:calc(65px + env(safe-area-inset-top));padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right));padding-bottom:calc(20px + env(safe-area-inset-bottom));gap:24px}
+ .hero{max-width:calc(100% - 354px)}.mission-panel{width:330px;max-width:330px;max-height:none}
+ .track-card{min-height:48px}.track-card b,html[lang="en"] .track-card b{font-size:10px}
+ .garage-settings select{min-height:44px;font-size:16px}
+ .graphics-settings select{width:98px}.vehicle-picker select{max-width:205px}
+ .vehicle-picker,.graphics-settings>label{font-size:9px}.blur-toggle{gap:5px!important}
+ .hud-top{top:calc(60px + env(safe-area-inset-top));left:max(20px,env(safe-area-inset-left));right:max(20px,env(safe-area-inset-right))}
+ .progress-track{top:calc(111px + env(safe-area-inset-top))}
+ #platform-warning{top:calc(121px + env(safe-area-inset-top));font-size:10px;padding:5px 9px}
+ #event{top:calc(157px + env(safe-area-inset-top));font-size:13px;max-width:60%}
+ .hud-bottom{left:calc(150px + env(safe-area-inset-left));right:calc(150px + env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));gap:12px}
+ .telemetry{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:6px;row-gap:3px;width:270px;max-width:65%;min-width:228px;margin-left:auto}
+ .telemetry>div:nth-child(1){grid-column:1;grid-row:1}.telemetry>div:nth-child(2){grid-column:1;grid-row:2}
+ .telemetry>div:nth-child(3){grid-column:2/4;grid-row:1}.telemetry>div:nth-child(4){grid-column:2/4;grid-row:2}
+ .telemetry .meter{margin:1px 0 3px;height:3px}.telemetry>div:not(.meter){font-size:8px}
+ .telemetry>.assist-row{display:contents}
+ #magnet{grid-column:1;grid-row:3}#camera{grid-column:2;grid-row:3}#recover{grid-column:3;grid-row:3}
+ .assist-row button,.recover-button,html[lang="en"] .assist-row button{min-height:44px;margin:0;font-size:9px;padding:6px 3px}
+ .recover-button kbd,.assist-row kbd{display:none}
+ .speed-panel>b{font-size:40px}.speed-panel>span{font-size:7px}.drive-line{margin-top:4px;gap:5px}.drive-line>span{font-size:6px}
+ #touch-controls{bottom:max(12px,env(safe-area-inset-bottom))}.touch-group button{width:54px;height:49px;min-height:49px}
+ .pedals{grid-template-columns:52px 62px}.pedals button{height:49px;min-height:49px}.pedals .jet{height:54px;min-height:54px}
+}
+
+@media(max-width:700px) and (max-height:550px) and (orientation:landscape){
+ #menu{gap:18px}.mission-panel{width:300px;max-width:300px}.hero{max-width:calc(100% - 318px)}
+ .hud-bottom{left:calc(132px + env(safe-area-inset-left));right:calc(132px + env(safe-area-inset-right));gap:7px}.telemetry{width:228px;min-width:210px;max-width:none}
+ .speed-panel>b{font-size:30px}.speed-panel>span,.drive-line>span{display:none}.drive-line{gap:4px}
+ .assist-row button,.recover-button,html[lang="en"] .assist-row button{font-size:8px}
+}
+.pause-blur-row{display:flex;align-items:center;justify-content:space-between;min-height:44px;margin:4px 0 16px;font-size:12px;cursor:pointer}.pause-blur-row input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.pause-blur-row .switch{display:block}
+
+/* Pedals fill their grid cells in both orientations; the jet spans both. */
+.pedals button{width:100%;min-width:0}
+.pedals .jet{grid-column:1/-1;width:100%}
+
